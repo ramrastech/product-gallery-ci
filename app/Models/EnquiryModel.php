@@ -20,7 +20,7 @@ class EnquiryModel extends Model
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
+    protected $useSoftDeletes   = true;
     protected $protectFields    = true;
     protected $allowedFields    = ['product_id', 'name', 'email', 'phone', 'message', 'status', 'ip_address'];
 

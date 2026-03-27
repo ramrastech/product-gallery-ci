@@ -1,0 +1,63 @@
+# =============================================================================
+# deploy.yml — CI/CD Pipeline for Product Gallery
+# © 2026 RAMRAS TECHNOLOGIES. All Rights Reserved.
+#
+# Triggers on push to main branch.
+# Runs PHP lint + Composer validate, then deploys via SSH.
+#
+# Required GitHub Secrets:
+#   SSH_HOST        — production server IP or hostname
+#   SSH_USER        — SSH user (e.g. deploy)
+#   SSH_PRIVATE_KEY — private SSH key (PEM format)
+#   SSH_PORT        — SSH port (default 22)
+#   DEPLOY_PATH     — absolute path to project on server
+# =============================================================================
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  lint-and-validate:
+    name: PHP Lint & Composer Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: intl, mbstring, curl
+          coverage: none
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-scripts
+
+      - name: PHP syntax check
+        run: find app -name "*.php" -print0 | xargs -0 -n1 php -l
+
+  deploy:
+    name: Deploy to Production
+    needs: lint-and-validate
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            bash scripts/deploy.sh

@@ -13,6 +13,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Models\AuditLogModel;
 use App\Models\CategoryModel;
 use App\Models\ProductModel;
 
@@ -51,15 +52,20 @@ class Categories extends BaseController
 
     public function save()
     {
-        $name = $this->request->getPost('name');
-        if (empty(trim($name))) {
-            return redirect()->back()->with('error', 'Name is required.');
+        $rules = [
+            'name'      => 'required|min_length[2]|max_length[150]',
+            'parent_id' => 'permit_empty|integer',
+        ];
+
+        if (! $this->validate($rules)) {
+            return redirect()->back()->withInput()->with('error', implode('<br>', $this->validator->getErrors()));
         }
 
+        $name = $this->request->getPost('name');
         $slug = strtolower(trim(preg_replace('/[^a-z0-9\s-]/i', '', $name)));
         $slug = preg_replace('/[\s-]+/', '-', $slug);
 
-        $this->model->insert([
+        $id = $this->model->insert([
             'name'        => $name,
             'slug'        => $slug . '-' . time(),
             'parent_id'   => $this->request->getPost('parent_id') ?: null,
@@ -67,6 +73,7 @@ class Categories extends BaseController
             'is_active'   => (int)$this->request->getPost('is_active'),
         ]);
 
+        AuditLogModel::record('category_created', 'categories', $id, "Created: {$name}");
         return redirect()->to('/admin/categories')->with('success', 'Category created.');
     }
 
@@ -86,6 +93,15 @@ class Categories extends BaseController
 
     public function update(int $id)
     {
+        $rules = [
+            'name'      => 'required|min_length[2]|max_length[150]',
+            'parent_id' => 'permit_empty|integer',
+        ];
+
+        if (! $this->validate($rules)) {
+            return redirect()->back()->withInput()->with('error', implode('<br>', $this->validator->getErrors()));
+        }
+
         $name = $this->request->getPost('name');
         $this->model->update($id, [
             'name'        => $name,
@@ -93,12 +109,16 @@ class Categories extends BaseController
             'description' => $this->request->getPost('description'),
             'is_active'   => (int)$this->request->getPost('is_active'),
         ]);
+
+        AuditLogModel::record('category_updated', 'categories', $id, "Updated: {$name}");
         return redirect()->to('/admin/categories')->with('success', 'Category updated.');
     }
 
     public function delete(int $id)
     {
+        $category = $this->model->find($id);
         $this->model->delete($id);
+        AuditLogModel::record('category_deleted', 'categories', $id, "Deleted: " . ($category['name'] ?? $id));
         return redirect()->to('/admin/categories')->with('success', 'Category deleted.');
     }
 }

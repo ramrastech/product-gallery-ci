@@ -35,9 +35,15 @@ $routes->get('/sitemap.xml',              'Sitemap::index');
 // -------------------------------------------------------
 // Admin Auth Routes (no filter — public)
 // -------------------------------------------------------
-$routes->get('/admin/login',              'Admin\Auth::login');
-$routes->post('/admin/login',             'Admin\Auth::loginPost');
-$routes->get('/admin/logout',             'Admin\Auth::logout');
+$routes->get('/admin/login',                           'Admin\Auth::login');
+$routes->post('/admin/login',                          'Admin\Auth::loginPost');
+$routes->get('/admin/logout',                          'Admin\Auth::logout');
+$routes->get('/admin/verify-otp',                      'Admin\Auth::verifyOtp');
+$routes->post('/admin/verify-otp',                     'Admin\Auth::verifyOtpPost');
+$routes->get('/admin/forgot-password',                 'Admin\Auth::forgotPassword');
+$routes->post('/admin/forgot-password',                'Admin\Auth::forgotPasswordPost');
+$routes->get('/admin/reset-password/(:alphanum)',      'Admin\Auth::resetPassword/$1');
+$routes->post('/admin/reset-password',                 'Admin\Auth::resetPasswordPost');
 
 // -------------------------------------------------------
 // Admin Panel Routes (protected by adminAuth filter)
@@ -69,13 +75,13 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     $routes->get('enquiries/view/(:num)',      'Admin\Enquiries::view/$1');
     $routes->post('enquiries/status/(:num)',   'Admin\Enquiries::updateStatus/$1');
 
-    // Settings
-    $routes->get('settings',                   'Admin\Settings::index');
-    $routes->post('settings/save',             'Admin\Settings::save');
+    // Settings (super_admin only)
+    $routes->get('settings',                   'Admin\Settings::index',  ['filter' => 'role:super_admin']);
+    $routes->post('settings/save',             'Admin\Settings::save',   ['filter' => 'role:super_admin']);
 
-    // Themes
-    $routes->get('themes',                     'Admin\Themes::index');
-    $routes->post('themes/activate',           'Admin\Themes::activate');
+    // Themes (super_admin only)
+    $routes->get('themes',                     'Admin\Themes::index',    ['filter' => 'role:super_admin']);
+    $routes->post('themes/activate',           'Admin\Themes::activate', ['filter' => 'role:super_admin']);
 
     // SEO Management
     $routes->get('page-seo',                        'Admin\PageSeo::index');

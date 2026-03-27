@@ -163,6 +163,20 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Global: disable submit buttons and show spinner on any form submission
+document.addEventListener('submit', function (e) {
+    const form = e.target;
+    const btn  = form.querySelector('[type="submit"]');
+    if (btn && !btn.dataset.noSpinner) {
+        btn.disabled = true;
+        const original = btn.innerHTML;
+        btn.innerHTML  = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> ' + original;
+        // Re-enable after 8s as safety net
+        setTimeout(() => { btn.disabled = false; btn.innerHTML = original; }, 8000);
+    }
+});
+</script>
 <?= $this->renderSection('scripts') ?>
 </body>
 </html>

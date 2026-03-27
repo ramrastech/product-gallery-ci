@@ -1,69 +1,161 @@
-# CodeIgniter 4 Application Starter
+# Product Gallery
 
-## What is CodeIgniter?
+**OEM Leather & Fashion Accessories Showcase Platform**
+Built by [RAMRAS TECHNOLOGIES](https://ramrastech.com)
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+---
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+## Overview
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+Product Gallery is a CodeIgniter 4 web application for showcasing and managing OEM leather goods and fashion accessories. It provides a public-facing product catalogue with enquiry functionality and a full-featured admin panel for content management.
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+---
 
-## Installation & updates
+## Tech Stack
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+| Layer       | Technology                        |
+|-------------|-----------------------------------|
+| Framework   | CodeIgniter 4.7                   |
+| Language    | PHP 8.2+                          |
+| Database    | MySQL 8.0+ (MySQLi driver)        |
+| Frontend    | Bootstrap 5.3.3, Bootstrap Icons  |
+| Auth        | Session-based, bcrypt passwords   |
+| Email       | PHP mail / SMTP via CI4 Email     |
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+---
 
-## Setup
+## Features
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+- Product catalogue with categories, search, filtering, and pagination
+- Product detail pages with image gallery and enquiry form
+- Admin panel — Products, Categories, Enquiries, Settings, SEO, Media, Themes
+- Dynamic page content management (Home, About, FAQ, Legal pages)
+- Three switchable themes (Default, Dark, Minimal)
+- XML sitemap, Schema.org structured data, Open Graph meta tags
+- CSRF protection, ForceHTTPS, security headers
+- Role-based access control (super_admin, manager, viewer)
+- Audit logging of sensitive admin actions
+- 2FA via email OTP
+- Forgot / reset password flow
+- Soft deletes on all key models
 
-## Important Change with index.php
+---
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+## Requirements
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+- PHP 8.2+ with `intl`, `mbstring`, `mysqlnd`, `curl` extensions
+- MySQL 8.0+
+- Apache with `mod_rewrite` enabled (or Nginx equivalent)
+- Composer
 
-**Please** read the user guide for a better explanation of how CI4 works!
+---
 
-## Repository Management
+## Local Setup
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+```bash
+# 1. Clone the repository
+git clone <repo-url> product-gallery
+cd product-gallery
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+# 2. Install PHP dependencies
+composer install
 
-## Server Requirements
+# 3. Configure environment
+cp .env.example .env
+# Edit .env — set baseURL, database credentials, encryption key, email
 
-PHP version 8.2 or higher is required, with the following extensions installed:
+# 4. Generate encryption key
+php spark key:generate
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+# 5. Run migrations
+php spark migrate
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - The end of life date for PHP 8.1 was December 31, 2025.
-> - If you are still using below PHP 8.2, you should upgrade immediately.
-> - The end of life date for PHP 8.2 will be December 31, 2026.
+# 6. Seed initial data (optional)
+php spark db:seed ContentSeeder
+php spark db:seed ProductionSeeder
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+# 7. Start dev server
+php spark serve
+```
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+Visit `http://localhost:8080` for the public site.
+Visit `http://localhost:8080/admin/login` for the admin panel.
+
+---
+
+## Admin Panel
+
+| URL                     | Description              |
+|-------------------------|--------------------------|
+| `/admin/login`          | Admin login              |
+| `/admin/`               | Dashboard                |
+| `/admin/products`       | Product management       |
+| `/admin/categories`     | Category management      |
+| `/admin/enquiries`      | Enquiry CRM              |
+| `/admin/settings`       | Site settings            |
+| `/admin/themes`         | Theme switcher           |
+| `/admin/page-seo`       | SEO metadata             |
+| `/admin/media`          | Media library            |
+| `/admin/home-content`   | Home page content        |
+| `/admin/about-content`  | About page content       |
+| `/admin/faq`            | FAQ management           |
+| `/admin/page-content/*` | Privacy / Terms editing  |
+
+Default admin credentials are set during seeding — change the password immediately after first login.
+
+---
+
+## Environment Variables
+
+See `.env.example` for the full list. Key variables:
+
+| Variable                    | Description                              |
+|-----------------------------|------------------------------------------|
+| `CI_ENVIRONMENT`            | `development` or `production`            |
+| `app.baseURL`               | Full base URL including trailing slash   |
+| `database.default.*`        | Database connection settings             |
+| `encryption.key`            | Run `php spark key:generate`             |
+| `email.SMTPHost/User/Pass`  | SMTP credentials for email delivery      |
+
+---
+
+## Deployment
+
+See `scripts/deploy.sh` for the deploy script. Set up environment variables on the server and run:
+
+```bash
+bash scripts/deploy.sh
+```
+
+Schedule the backup script via cron (see `scripts/backup.sh`):
+
+```bash
+0 2 * * * /path/to/project/scripts/backup.sh >> /var/log/pg_backup.log 2>&1
+```
+
+---
+
+## Architecture
+
+```
+app/
+├── Config/          — CI4 configuration (filters, routes, email, security)
+├── Controllers/
+│   ├── Admin/       — Admin panel controllers (auth, products, settings, etc.)
+│   └── *.php        — Public controllers (home, products, about, enquiry, sitemap)
+├── Filters/         — AdminAuthFilter, RoleFilter
+├── Models/          — One model per table, CI4 Model class
+├── Database/
+│   ├── Migrations/  — Versioned schema changes (never edit existing)
+│   └── Seeds/       — ContentSeeder, ProductionSeeder
+└── Views/
+    ├── layouts/     — public.php, admin.php base layouts
+    ├── admin/       — Admin panel views
+    └── partials/    — Shared view fragments (OG meta, schema, share buttons)
+```
+
+---
+
+## License
+
+Proprietary — © 2026 RAMRAS TECHNOLOGIES. All Rights Reserved.
