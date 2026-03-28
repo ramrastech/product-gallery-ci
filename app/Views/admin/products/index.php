@@ -52,9 +52,16 @@
                 <?php else: ?>
                 <?php foreach ($products as $p): ?>
                 <tr>
+                    <?php
+                    $pImgSrc = function($path) {
+                        if (!$path) return '';
+                        if (str_starts_with($path,'http') || str_starts_with($path,'/')) return $path;
+                        return '/uploads/products/' . $path;
+                    };
+                    ?>
                     <td>
                         <?php if ($p['primary_image']): ?>
-                            <img src="/uploads/products/<?= esc($p['primary_image']) ?>" width="48" height="48" style="object-fit:cover; border-radius:6px;">
+                            <img src="<?= esc($pImgSrc($p['primary_image'])) ?>" width="48" height="48" style="object-fit:cover; border-radius:6px;">
                         <?php else: ?>
                             <div style="width:48px;height:48px;background:#334155;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="bi bi-image text-muted"></i></div>
                         <?php endif; ?>
@@ -87,17 +94,24 @@
                         <?php endif; ?>
                     </td>
                     <td class="small text-muted"><?= number_format($p['view_count']) ?></td>
-                    <td>
-                        <a href="/admin/products/edit/<?= $p['id'] ?>" class="btn btn-sm btn-outline-secondary py-0 px-2">
+                    <td style="white-space:nowrap;">
+                        <div class="d-flex align-items-center gap-1 flex-nowrap">
+                        <?php if (! empty($p['slug'])): ?>
+                        <a href="/products/<?= esc($p['slug']) ?>" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" title="View on site">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                        <?php endif; ?>
+                        <a href="/admin/products/edit/<?= $p['id'] ?>" class="btn btn-sm btn-outline-secondary py-0 px-2" title="Edit">
                             <i class="bi bi-pencil"></i>
                         </a>
-                        <form method="post" action="/admin/products/delete/<?= $p['id'] ?>" class="d-inline"
+                        <form method="post" action="/admin/products/delete/<?= $p['id'] ?>" style="margin:0;"
                               onsubmit="return confirm('Delete this product?');">
                             <?= csrf_field() ?>
-                            <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2">
+                            <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2" title="Delete">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>

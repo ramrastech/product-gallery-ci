@@ -53,7 +53,7 @@ class FaqContent extends BaseController
         $name = trim($this->request->getPost('name') ?? '');
 
         if (empty($name)) {
-            return redirect()->back()->with('error', 'Category name is required.');
+            return redirect()->to('/admin/faq')->with('error', 'Category name is required.');
         }
 
         if ($id > 0) {
@@ -76,7 +76,7 @@ class FaqContent extends BaseController
     {
         $count = $this->itemModel->where('category_id', $id)->countAllResults();
         if ($count > 0) {
-            return redirect()->back()->with('error', 'Cannot delete a category that has FAQ items. Delete the items first.');
+            return redirect()->to('/admin/faq')->with('error', 'Cannot delete a category that has FAQ items. Delete the items first.');
         }
         $this->db->table('faq_categories')->delete(['id' => $id]);
         return redirect()->to('/admin/faq')->with('success', 'Category deleted.');
@@ -118,7 +118,8 @@ class FaqContent extends BaseController
         $answer     = $this->request->getPost('answer') ?? '';
 
         if (empty($question) || empty($answer)) {
-            return redirect()->back()->with('error', 'Question and answer are required.')->withInput();
+            $formUrl = $id > 0 ? '/admin/faq/item/edit/' . $id : '/admin/faq/item/new';
+            return redirect()->to($formUrl)->withInput()->with('error', 'Question and answer are required.');
         }
 
         $data = [

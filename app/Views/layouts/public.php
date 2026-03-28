@@ -67,6 +67,14 @@
     <!-- ── Schema.org JSON-LD Structured Data ────────────── -->
     <?= view('partials/schema_org') ?>
 
+    <!-- ── Favicon ───────────────────────────────────────── -->
+    <?php if (! empty($settings['favicon_url'])): ?>
+    <link rel="icon" href="<?= esc($settings['favicon_url']) ?>">
+    <link rel="shortcut icon" href="<?= esc($settings['favicon_url']) ?>">
+    <?php else: ?>
+    <link rel="icon" href="/favicon.ico">
+    <?php endif; ?>
+
     <!-- ── Preconnect CDNs ───────────────────────────────── -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
@@ -81,6 +89,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox@3.3.0/dist/css/glightbox.min.css">
 
+    <!-- ── AOS Scroll Animations ─────────────────────────── -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+
     <!-- ── Active Theme ──────────────────────────────────── -->
     <link rel="stylesheet" href="/themes/<?= esc($activeTheme) ?>/style.css">
 
@@ -92,13 +103,18 @@
 <nav class="navbar navbar-expand-lg pg-navbar sticky-top">
     <div class="container">
         <a class="navbar-brand" href="/">
+            <?php if (! empty($settings['logo_url'])): ?>
+            <img src="<?= esc($settings['logo_url']) ?>" alt="<?= esc($settings['site_name'] ?? 'Product Gallery') ?>"
+                 style="max-height:40px; width:auto; object-fit:contain;">
+            <?php else: ?>
             <?= esc($settings['site_name'] ?? 'Product Gallery') ?>
+            <?php endif; ?>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
                 <li class="nav-item">
                     <a class="nav-link <?= uri_string() === '' ? 'active' : '' ?>" href="/">Home</a>
                 </li>
@@ -241,6 +257,10 @@
 
 <!-- Analytics -->
 <?= view('partials/analytics') ?>
+
+<!-- AOS Init -->
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>AOS.init({ duration: 700, once: true, offset: 80, easing: 'ease-out-cubic' });</script>
 
 <?= $this->renderSection('scripts') ?>
 </body>

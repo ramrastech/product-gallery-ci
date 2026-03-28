@@ -20,21 +20,21 @@
         <!-- Primary Meta -->
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header py-3 px-4"><h6 class="mb-0">Primary SEO Tags</h6></div>
+                <div class="card-header py-3 px-4"><h6 class="mb-0">Primary SEO Tags<i class="bi bi-question-circle help-tip" data-bs-toggle="tooltip" title="These tags control how this page appears in Google search results."></i></h6></div>
                 <div class="card-body p-4">
                     <div class="mb-3">
-                        <label class="form-label">Meta Title <small class="text-muted">(max 70 chars recommended)</small></label>
+                        <label class="form-label">Meta Title <small class="text-muted">(max 70 chars recommended)</small><i class="bi bi-question-circle help-tip" data-bs-toggle="tooltip" title="Shown in the browser tab and as the clickable headline in Google search results. Keep under 70 characters."></i></label>
                         <input type="text" name="meta_title" id="metaTitle" class="form-control"
                                value="<?= esc($seo['meta_title'] ?? '') ?>" maxlength="120">
                         <div class="form-text"><span id="titleCount">0</span>/70 characters</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Meta Description <small class="text-muted">(max 160 chars recommended)</small></label>
+                        <label class="form-label">Meta Description <small class="text-muted">(max 160 chars recommended)</small><i class="bi bi-question-circle help-tip" data-bs-toggle="tooltip" title="The summary text shown beneath the title in Google search results. Aim for 120–160 characters."></i></label>
                         <textarea name="meta_description" id="metaDesc" class="form-control" rows="3" maxlength="300"><?= esc($seo['meta_description'] ?? '') ?></textarea>
                         <div class="form-text"><span id="descCount">0</span>/160 characters</div>
                     </div>
                     <div class="mb-0">
-                        <label class="form-label">Meta Keywords <small class="text-muted">(comma separated)</small></label>
+                        <label class="form-label">Meta Keywords <small class="text-muted">(comma separated)</small><i class="bi bi-question-circle help-tip" data-bs-toggle="tooltip" title="Comma-separated keywords related to this page. Less critical for modern SEO but still good practice."></i></label>
                         <input type="text" name="meta_keywords" class="form-control"
                                value="<?= esc($seo['meta_keywords'] ?? '') ?>" placeholder="keyword1, keyword2, ...">
                     </div>
@@ -43,24 +43,24 @@
 
             <!-- Open Graph -->
             <div class="card mb-4">
-                <div class="card-header py-3 px-4"><h6 class="mb-0">Open Graph (Social Sharing)</h6></div>
+                <div class="card-header py-3 px-4"><h6 class="mb-0">Open Graph (Social Sharing)<i class="bi bi-question-circle help-tip" data-bs-toggle="tooltip" title="Controls how this page looks when shared on Facebook, LinkedIn, WhatsApp, and other social platforms."></i></h6></div>
                 <div class="card-body p-4">
                     <div class="mb-3">
-                        <label class="form-label">OG Title <small class="text-muted">(leave blank to use Meta Title)</small></label>
+                        <label class="form-label">OG Title <small class="text-muted">(leave blank to use Meta Title)</small><i class="bi bi-question-circle help-tip" data-bs-toggle="tooltip" title="The headline shown in social media link previews. Defaults to your Meta Title if left blank."></i></label>
                         <input type="text" name="og_title" class="form-control" value="<?= esc($seo['og_title'] ?? '') ?>">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">OG Description <small class="text-muted">(leave blank to use Meta Description)</small></label>
+                        <label class="form-label">OG Description <small class="text-muted">(leave blank to use Meta Description)</small><i class="bi bi-question-circle help-tip" data-bs-toggle="tooltip" title="The description shown in social media link previews. Defaults to your Meta Description if left blank."></i></label>
                         <textarea name="og_description" class="form-control" rows="2"><?= esc($seo['og_description'] ?? '') ?></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">OG Image URL</label>
+                        <label class="form-label">OG Image URL<i class="bi bi-question-circle help-tip" data-bs-toggle="tooltip" title="The preview image shown when this page is shared on social media. Recommended size: 1200×630px. Use an absolute URL or an upload path."></i></label>
                         <input type="url" name="og_image" class="form-control"
                                value="<?= esc($seo['og_image'] ?? '') ?>" placeholder="https://... or /uploads/media/og/image.jpg">
                         <div class="form-text">Recommended size: 1200×630px. Use an absolute URL.</div>
                     </div>
                     <div class="mb-0">
-                        <label class="form-label">OG Type</label>
+                        <label class="form-label">OG Type<i class="bi bi-question-circle help-tip" data-bs-toggle="tooltip" title="The type of content. Use 'website' for most pages, 'article' for blog/news pages, 'product' for product pages."></i></label>
                         <select name="og_type" class="form-select">
                             <?php foreach (['website', 'article', 'product'] as $type): ?>
                             <option value="<?= $type ?>" <?= ($seo['og_type'] ?? 'website') === $type ? 'selected' : '' ?>><?= $type ?></option>
@@ -74,10 +74,10 @@
         <!-- Robots & Canonical -->
         <div class="col-lg-4">
             <div class="card mb-4">
-                <div class="card-header py-3 px-4"><h6 class="mb-0">Robots & Indexing</h6></div>
+                <div class="card-header py-3 px-4"><h6 class="mb-0">Robots & Indexing<i class="bi bi-question-circle help-tip" data-bs-toggle="tooltip" title="Controls whether search engines can index this page and follow its links."></i></h6></div>
                 <div class="card-body p-4">
                     <div class="mb-3">
-                        <label class="form-label">Robots Meta</label>
+                        <label class="form-label">Robots Meta<i class="bi bi-question-circle help-tip" data-bs-toggle="tooltip" title="'Index + Follow' is the default for all public pages. Use 'No Index' only for pages you want to hide from Google."></i></label>
                         <select name="robots" class="form-select">
                             <?php
                             $robotOptions = [
@@ -95,7 +95,7 @@
                         </select>
                     </div>
                     <div class="mb-0">
-                        <label class="form-label">Canonical URL <small class="text-muted">(optional override)</small></label>
+                        <label class="form-label">Canonical URL <small class="text-muted">(optional override)</small><i class="bi bi-question-circle help-tip" data-bs-toggle="tooltip" title="Prevents duplicate content issues. Leave blank to automatically use the current page URL."></i></label>
                         <input type="url" name="canonical" class="form-control"
                                value="<?= esc($seo['canonical'] ?? '') ?>" placeholder="https://yourdomain.com/page">
                         <div class="form-text">Leave blank to use the current page URL.</div>

@@ -86,6 +86,6 @@ class Enquiries extends BaseController
         if (in_array($status, ['new', 'read', 'replied'])) {
             $this->model->update($id, ['status' => $status]);
         }
-        return redirect()->back()->with('success', 'Status updated.');
+        return redirect()->to('/admin/enquiries/view/' . $id)->with('success', 'Status updated.');
     }
 }

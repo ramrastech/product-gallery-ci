@@ -55,7 +55,7 @@
         <div class="row g-5 align-items-start">
 
             <!-- Contact Info -->
-            <div class="col-lg-4">
+            <div class="col-lg-4" data-aos="fade-right">
                 <span class="pg-eyebrow">Reach Us</span>
                 <h2 class="pg-section-heading">Get in Touch</h2>
                 <p class="pg-body-text mt-2 mb-4">
@@ -150,7 +150,7 @@
             </div>
 
             <!-- Enquiry Form -->
-            <div class="col-lg-8">
+            <div class="col-lg-8" data-aos="fade-left">
                 <div class="pg-contact-form-card">
                     <h4 class="pg-contact-form-title">Send Us an Enquiry</h4>
                     <p class="pg-body-text mb-4">
@@ -230,7 +230,7 @@
 </section>
 
 <!-- ========== MAP ========== -->
-<section class="pg-map-section">
+<section class="pg-map-section" data-aos="fade-up" data-aos-offset="50">
     <div class="pg-map-overlay-bar">
         <div class="container d-flex flex-wrap align-items-center gap-4 py-3">
             <div class="d-flex align-items-center gap-2 pg-map-info">
@@ -259,7 +259,7 @@
 
 <!-- ========== WHATSAPP CTA ========== -->
 <section class="pg-section pg-section-alt">
-    <div class="container text-center">
+    <div class="container text-center" data-aos="zoom-in">
         <h3 class="pg-section-heading">Prefer to Chat Directly?</h3>
         <p class="pg-body-text mb-4">WhatsApp is the fastest way to share references, get quick pricing, and start the conversation.</p>
         <?php

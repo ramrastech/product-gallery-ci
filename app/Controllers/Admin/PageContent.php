@@ -55,6 +55,6 @@ class PageContent extends BaseController
 
         $this->model->savePage($key, $data);
 
-        return redirect()->back()->with('success', $this->pageLabels[$key] . ' content saved.');
+        return redirect()->to('/admin/page-content/' . $key . '/edit')->with('success', $this->pageLabels[$key] . ' content saved.');
     }
 }

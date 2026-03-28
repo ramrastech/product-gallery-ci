@@ -12,7 +12,7 @@
 <a href="/products/<?= esc($product['slug']) ?>" class="pg-product-card d-block text-decoration-none">
     <div class="pg-product-img-wrap">
         <?php if ($product['primary_image']):
-            $imgSrc = str_starts_with($product['primary_image'], 'http')
+            $imgSrc = (str_starts_with($product['primary_image'], 'http') || str_starts_with($product['primary_image'], '/'))
                 ? $product['primary_image']
                 : '/uploads/products/' . $product['primary_image'];
         ?>

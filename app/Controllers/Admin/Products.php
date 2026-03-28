@@ -13,6 +13,8 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\ImageOptimizer;
+use App\Models\MediaLibraryModel;
 use App\Models\ProductModel;
 use App\Models\ProductImageModel;
 use App\Models\CategoryModel;
@@ -22,12 +24,16 @@ class Products extends BaseController
     protected ProductModel $productModel;
     protected ProductImageModel $imageModel;
     protected CategoryModel $categoryModel;
+    protected ImageOptimizer $optimizer;
+    protected MediaLibraryModel $mediaModel;
 
     public function __construct()
     {
         $this->productModel  = new ProductModel();
         $this->imageModel    = new ProductImageModel();
         $this->categoryModel = new CategoryModel();
+        $this->optimizer     = new ImageOptimizer();
+        $this->mediaModel    = new MediaLibraryModel();
     }
 
     public function index()
@@ -86,7 +92,7 @@ class Products extends BaseController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', implode('<br>', $this->validator->getErrors()));
+            return redirect()->to('/admin/products/new')->withInput()->with('error', implode('<br>', $this->validator->getErrors()));
         }
 
         $name = $this->request->getPost('name');
@@ -122,6 +128,7 @@ class Products extends BaseController
         ]);
 
         $this->handleImageUploads($productId);
+        $this->handleImageUrls($productId);
 
         return redirect()->to('/admin/products/edit/' . $productId)
             ->with('success', 'Product created successfully.');
@@ -184,21 +191,18 @@ class Products extends BaseController
         ]);
 
         $this->handleImageUploads($id);
+        $this->handleImageUrls($id);
 
-        return redirect()->back()->with('success', 'Product updated successfully.');
+        return redirect()->to('/admin/products/edit/' . $id)->with('success', 'Product updated successfully.');
     }
 
     public function delete(int $id)
     {
         $product = $this->productModel->find($id);
         if ($product) {
-            // Delete images from disk
             $images = $this->imageModel->where('product_id', $id)->findAll();
             foreach ($images as $img) {
-                $path = FCPATH . 'uploads/products/' . $img['image_path'];
-                if (is_file($path)) {
-                    unlink($path);
-                }
+                $this->unlinkImageFile($img['image_path']);
             }
             $this->imageModel->where('product_id', $id)->delete();
             $this->productModel->delete($id);
@@ -219,12 +223,8 @@ class Products extends BaseController
     {
         $img = $this->imageModel->find($id);
         if ($img) {
-            $path = FCPATH . 'uploads/products/' . $img['image_path'];
-            if (is_file($path)) {
-                unlink($path);
-            }
+            $this->unlinkImageFile($img['image_path']);
             $this->imageModel->delete($id);
-            // If it was primary, set next as primary
             if ($img['is_primary']) {
                 $next = $this->imageModel->where('product_id', $img['product_id'])->orderBy('sort_order')->first();
                 if ($next) {
@@ -233,6 +233,32 @@ class Products extends BaseController
             }
         }
         return $this->response->setJSON(['status' => 'ok']);
+    }
+
+    /**
+     * AJAX: instantly add an image from URL or media library to a product.
+     */
+    public function addImageFromUrl(int $productId)
+    {
+        $url = trim($this->request->getPost('url') ?? '');
+        if (empty($url) || ! $this->productModel->find($productId)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Invalid.']);
+        }
+
+        $existingCount = $this->imageModel->where('product_id', $productId)->countAllResults();
+        $hasPrimary    = $this->imageModel->where('product_id', $productId)->where('is_primary', 1)->countAllResults() > 0;
+        $isPrimary     = (! $hasPrimary && $existingCount === 0) ? 1 : 0;
+
+        $imageId = $this->imageModel->insert([
+            'product_id' => $productId,
+            'image_path' => $url,
+            'alt_text'   => '',
+            'sort_order' => $existingCount,
+            'is_primary' => $isPrimary,
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        return $this->response->setJSON(['status' => 'ok', 'id' => $imageId, 'is_primary' => $isPrimary]);
     }
 
     public function setPrimaryImage(int $id)
@@ -252,6 +278,11 @@ class Products extends BaseController
             return;
         }
 
+        $uploadDir = FCPATH . 'uploads/media/products';
+        if (! is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
         $existingCount = $this->imageModel->where('product_id', $productId)->countAllResults();
         $hasPrimary    = $this->imageModel->where('product_id', $productId)->where('is_primary', 1)->countAllResults() > 0;
 
@@ -259,7 +290,6 @@ class Products extends BaseController
             if (! $file->isValid() || $file->hasMoved()) {
                 continue;
             }
-
             $ext = strtolower($file->getClientExtension());
             if (! in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
                 continue;
@@ -268,9 +298,34 @@ class Products extends BaseController
                 continue;
             }
 
-            $newName = bin2hex(random_bytes(8)) . '.' . $ext;
-            $file->move(FCPATH . 'uploads/products', $newName);
+            // Move to a temp file, then run through the optimizer
+            $tmpName  = bin2hex(random_bytes(12)) . '_orig.' . $ext;
+            $origName = $file->getClientName();
+            $file->move($uploadDir, $tmpName);
 
+            $baseName = bin2hex(random_bytes(8));
+            $result   = $this->optimizer->process($uploadDir . '/' . $tmpName, $uploadDir, $baseName);
+            if (isset($result['error'])) {
+                continue;
+            }
+
+            // Register in media_library
+            $this->mediaModel->insert([
+                'filename'      => $result['filename'],
+                'original_name' => $origName,
+                'folder'        => 'products',
+                'mime_type'     => 'image/webp',
+                'file_size'     => $result['variants']['lg']['size'] ?? 0,
+                'width'         => $result['orig_w'],
+                'height'        => $result['orig_h'],
+                'variants'      => json_encode($result['variants']),
+                'alt_text'      => '',
+                'title'         => '',
+                'uploaded_by'   => session()->get('admin_id'),
+                'created_at'    => date('Y-m-d H:i:s'),
+            ]);
+
+            $imageUrl  = '/uploads/media/products/' . $result['filename'];
             $isPrimary = (! $hasPrimary && $existingCount === 0 && $idx === 0) ? 1 : 0;
             if ($isPrimary) {
                 $hasPrimary = true;
@@ -278,13 +333,69 @@ class Products extends BaseController
 
             $this->imageModel->insert([
                 'product_id' => $productId,
-                'image_path' => $newName,
-                'alt_text'   => $this->request->getPost('name') ?? '',
+                'image_path' => $imageUrl,
+                'alt_text'   => $origName,
                 'sort_order' => $existingCount + $idx,
                 'is_primary' => $isPrimary,
                 'created_at' => date('Y-m-d H:i:s'),
             ]);
             $existingCount++;
+        }
+    }
+
+    /**
+     * Handle image_urls[] POSTed from the form (library picks or external URLs
+     * added before saving on NEW product forms via hidden inputs).
+     */
+    private function handleImageUrls(int $productId): void
+    {
+        $urls = $this->request->getPost('image_urls') ?? [];
+        if (empty($urls)) {
+            return;
+        }
+
+        $existingCount = $this->imageModel->where('product_id', $productId)->countAllResults();
+        $hasPrimary    = $this->imageModel->where('product_id', $productId)->where('is_primary', 1)->countAllResults() > 0;
+
+        foreach ($urls as $idx => $url) {
+            $url = trim($url);
+            if (empty($url)) {
+                continue;
+            }
+            $isPrimary = (! $hasPrimary && $existingCount === 0 && $idx === 0) ? 1 : 0;
+            if ($isPrimary) {
+                $hasPrimary = true;
+            }
+
+            $this->imageModel->insert([
+                'product_id' => $productId,
+                'image_path' => $url,
+                'alt_text'   => '',
+                'sort_order' => $existingCount + $idx,
+                'is_primary' => $isPrimary,
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+            $existingCount++;
+        }
+    }
+
+    /**
+     * Delete a local file referenced by image_path (handles legacy bare filenames
+     * and new full-path format; silently skips external URLs).
+     */
+    private function unlinkImageFile(string $imagePath): void
+    {
+        if (str_starts_with($imagePath, 'http')) {
+            return; // external URL — nothing to delete from disk
+        }
+        if (str_starts_with($imagePath, '/')) {
+            $path = FCPATH . ltrim($imagePath, '/');
+        } else {
+            // Legacy: bare filename stored without leading slash
+            $path = FCPATH . 'uploads/products/' . $imagePath;
+        }
+        if (is_file($path)) {
+            unlink($path);
         }
     }
 }

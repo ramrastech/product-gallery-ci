@@ -167,17 +167,35 @@ class AboutContent extends BaseController
     public function saveSettings()
     {
         $fields = [
-            'about_hero_subtitle', 'about_hero_bg_url',
+            // Hero
+            'about_hero_title', 'about_hero_subtitle', 'about_hero_bg_url',
+            // Story
+            'about_story_eyebrow', 'about_story_heading',
             'about_story_main_image', 'about_story_accent_image',
             'about_story_body_1', 'about_story_body_2',
+            'about_story_badge_num', 'about_story_badge_label',
+            'about_story_checks',
+            // Mission & Vision
+            'about_mission_eyebrow', 'about_mission_heading',
             'about_mission', 'about_vision',
-            'about_facility_heading', 'about_facility_body',
+            // Timeline
+            'about_timeline_eyebrow', 'about_timeline_heading',
+            // Facility
+            'about_facility_eyebrow', 'about_facility_heading', 'about_facility_body',
+            // Team
+            'about_team_eyebrow', 'about_team_heading', 'about_team_body',
+            // Certifications
+            'about_cert_eyebrow', 'about_cert_heading', 'about_cert_body',
+            // CTA
+            'about_cta_eyebrow', 'about_cta_title', 'about_cta_subtitle',
+            'about_cta_primary_text', 'about_cta_primary_url',
+            'about_cta_secondary_text', 'about_cta_secondary_url',
         ];
 
         foreach ($fields as $key) {
             $this->settingsModel->setSetting($key, $this->request->getPost($key) ?? '');
         }
 
-        return redirect()->back()->with('success', 'About page settings saved.');
+        return redirect()->to('/admin/about-content/settings')->with('success', 'About page settings saved.');
     }
 }

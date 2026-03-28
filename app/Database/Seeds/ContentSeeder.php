@@ -251,6 +251,9 @@ class ContentSeeder extends Seeder
             ];
         }
 
+        // Normalize all rows to the same column set
+        $allCols = array_fill_keys(array_unique(array_merge(...array_map('array_keys', $rows))), null);
+        $rows = array_map(fn($r) => array_merge($allCols, $r), $rows);
         $this->db->table('home_sections')->insertBatch($rows);
     }
 
@@ -369,6 +372,9 @@ class ContentSeeder extends Seeder
             ];
         }
 
+        // Normalize all rows to the same column set
+        $allCols = array_fill_keys(array_unique(array_merge(...array_map('array_keys', $rows))), null);
+        $rows = array_map(fn($r) => array_merge($allCols, $r), $rows);
         $this->db->table('about_sections')->insertBatch($rows);
     }
 

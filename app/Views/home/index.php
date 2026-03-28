@@ -35,8 +35,11 @@
                 <?php if (! empty($settings['hero_eyebrow'])): ?>
                 <span class="pg-hero-eyebrow"><?= esc($settings['hero_eyebrow']) ?></span>
                 <?php endif; ?>
+                <?php if (! empty($settings['hero_title_line1']) || ! empty($settings['hero_title_line2']) || ! empty($settings['hero_accent_text'])): ?>
                 <h1 class="pg-hero-title">
-                    <?= esc($settings['hero_title_line1'] ?? $settings['hero_title'] ?? 'Think Leather.') ?><br>
+                    <?php if (! empty($settings['hero_title_line1'])): ?>
+                    <?= esc($settings['hero_title_line1']) ?><br>
+                    <?php endif; ?>
                     <?php if (! empty($settings['hero_title_line2'])): ?>
                     <?= esc($settings['hero_title_line2']) ?><br>
                     <?php endif; ?>
@@ -44,17 +47,24 @@
                     <span class="pg-hero-accent"><?= esc($settings['hero_accent_text']) ?></span>
                     <?php endif; ?>
                 </h1>
+                <?php endif; ?>
                 <?php if (! empty($settings['hero_subtitle'])): ?>
                 <p class="pg-hero-subtitle"><?= esc($settings['hero_subtitle']) ?></p>
                 <?php endif; ?>
+                <?php if (! empty($settings['hero_cta_primary_text']) || ! empty($settings['hero_cta_secondary_text'])): ?>
                 <div class="d-flex flex-wrap gap-3 mt-4">
-                    <a href="<?= esc($settings['hero_cta_primary_url'] ?? '/products') ?>" class="btn pg-btn-primary btn-lg px-4">
-                        <?= esc($settings['hero_cta_primary_text'] ?? 'Explore Our Range') ?> <i class="bi bi-arrow-right ms-1"></i>
+                    <?php if (! empty($settings['hero_cta_primary_text'])): ?>
+                    <a href="<?= esc($settings['hero_cta_primary_url'] ?? '#') ?>" class="btn pg-btn-primary btn-lg px-4">
+                        <?= esc($settings['hero_cta_primary_text']) ?> <i class="bi bi-arrow-right ms-1"></i>
                     </a>
-                    <a href="<?= esc($settings['hero_cta_secondary_href'] ?? '#contact-cta') ?>" class="btn pg-btn-outline-light btn-lg px-4">
-                        <?= esc($settings['hero_cta_secondary_text'] ?? 'Request a Quote') ?>
+                    <?php endif; ?>
+                    <?php if (! empty($settings['hero_cta_secondary_text'])): ?>
+                    <a href="<?= esc($settings['hero_cta_secondary_href'] ?? '#') ?>" class="btn pg-btn-outline-light btn-lg px-4">
+                        <?= esc($settings['hero_cta_secondary_text']) ?>
                     </a>
+                    <?php endif; ?>
                 </div>
+                <?php endif; ?>
                 <?php if (! empty($trustBadges)): ?>
                 <div class="pg-hero-trust mt-4">
                     <?php foreach ($trustBadges as $i => $badge): ?>
@@ -85,7 +95,7 @@
     <div class="container">
         <div class="row g-0 pg-stats-row">
             <?php $lastIdx = count($stats) - 1; foreach ($stats as $i => $stat): ?>
-            <div class="col-6 col-md-3 pg-stat-item <?= $i === $lastIdx ? 'pg-stat-last' : '' ?>">
+            <div class="col-6 col-md-3 pg-stat-item <?= $i === $lastIdx ? 'pg-stat-last' : '' ?>" data-aos="fade-up" data-aos-delay="<?= $i * 100 ?>">
                 <div class="pg-stat-number"><?= esc($stat['title']) ?></div>
                 <div class="pg-stat-label"><?= esc($stat['subtitle']) ?></div>
             </div>
@@ -99,16 +109,20 @@
 <section class="pg-section">
     <div class="container">
         <div class="row align-items-center g-5">
-            <div class="col-lg-6">
+            <div class="col-lg-6" data-aos="fade-right" data-aos-duration="900">
                 <div class="pg-about-image-grid">
+                    <?php if (! empty($settings['story_main_image_url'])): ?>
                     <div class="pg-about-img-main">
-                        <img src="<?= esc($settings['story_main_image_url'] ?? 'https://viale.in/wp-content/uploads/2022/08/man-creates-leather-ware.jpg') ?>"
+                        <img src="<?= esc($settings['story_main_image_url']) ?>"
                              alt="Artisan crafting leather goods">
                     </div>
+                    <?php endif; ?>
+                    <?php if (! empty($settings['story_accent_image_url'])): ?>
                     <div class="pg-about-img-accent">
-                        <img src="<?= esc($settings['story_accent_image_url'] ?? 'https://viale.in/wp-content/uploads/2022/10/VF-1100-1.png') ?>"
+                        <img src="<?= esc($settings['story_accent_image_url']) ?>"
                              alt="Leather goods showcase">
                     </div>
+                    <?php endif; ?>
                     <?php if (! empty($settings['story_badge_num'])): ?>
                     <div class="pg-about-badge">
                         <div class="pg-about-badge-num"><?= esc($settings['story_badge_num']) ?></div>
@@ -117,7 +131,7 @@
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-6" data-aos="fade-left" data-aos-duration="900">
                 <?php if (! empty($settings['story_eyebrow'])): ?>
                 <span class="pg-eyebrow"><?= esc($settings['story_eyebrow']) ?></span>
                 <?php endif; ?>
@@ -149,7 +163,9 @@
                     </div>
                 </div>
                 <?php endif; ?>
-                <a href="/products" class="btn pg-btn-primary mt-4">View Our Product Range</a>
+                <?php if (! empty($settings['story_cta_text'])): ?>
+                <a href="<?= esc($settings['story_cta_url'] ?? '#') ?>" class="btn pg-btn-primary mt-4"><?= esc($settings['story_cta_text']) ?></a>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -159,7 +175,7 @@
 <?php if (! empty($capabilities)): ?>
 <section class="pg-section pg-section-alt">
     <div class="container">
-        <div class="text-center mb-5">
+        <div class="text-center mb-5" data-aos="fade-up">
             <?php if (! empty($settings['capabilities_eyebrow'])): ?>
             <span class="pg-eyebrow"><?= esc($settings['capabilities_eyebrow']) ?></span>
             <?php endif; ?>
@@ -171,8 +187,8 @@
             <?php endif; ?>
         </div>
         <div class="row g-4">
-            <?php foreach ($capabilities as $cap): ?>
-            <div class="col-sm-6 col-lg-4">
+            <?php $capIdx = 0; foreach ($capabilities as $cap): ?>
+            <div class="col-sm-6 col-lg-4" data-aos="fade-up" data-aos-delay="<?= min($capIdx++ * 100, 300) ?>">
                 <div class="pg-capability-card">
                     <?php if (! empty($cap['icon'])): ?>
                     <div class="pg-capability-icon"><i class="bi <?= esc($cap['icon']) ?>"></i></div>
@@ -194,14 +210,18 @@ $displayCategories = $categories;
 ?>
 <section class="pg-section">
     <div class="container">
-        <div class="d-flex align-items-end justify-content-between mb-4 flex-wrap gap-2">
+        <div class="d-flex align-items-end justify-content-between mb-4 flex-wrap gap-2" data-aos="fade-up">
             <div>
                 <?php if (! empty($settings['categories_eyebrow'])): ?>
                 <span class="pg-eyebrow"><?= esc($settings['categories_eyebrow']) ?></span>
                 <?php endif; ?>
-                <h2 class="pg-section-heading mb-0"><?= esc($settings['categories_heading'] ?? 'Browse by Category') ?></h2>
+                <?php if (! empty($settings['categories_heading'])): ?>
+                <h2 class="pg-section-heading mb-0"><?= esc($settings['categories_heading']) ?></h2>
+                <?php endif; ?>
             </div>
-            <a href="/products" class="pg-view-all">View All Products <i class="bi bi-arrow-right"></i></a>
+            <?php if (! empty($settings['categories_cta_text'])): ?>
+            <a href="<?= esc($settings['categories_cta_url'] ?? '#') ?>" class="pg-view-all"><?= esc($settings['categories_cta_text']) ?> <i class="bi bi-arrow-right"></i></a>
+            <?php endif; ?>
         </div>
 
         <?php if (! empty($displayCategories)): ?>
@@ -222,14 +242,15 @@ $displayCategories = $categories;
         <?php endif; ?>
 
         <div class="row g-3" id="categoryGrid">
-            <?php foreach ($displayCategories as $cat):
+            <?php $catIdx = 0; foreach ($displayCategories as $cat):
                 $gender = $cat['gender'] ?? 'Unisex';
             ?>
-            <div class="col-6 col-md-4 col-lg-3 pg-cat-item" data-gender="<?= esc($gender) ?>">
+            <div class="col-6 col-md-4 col-lg-3 pg-cat-item" data-gender="<?= esc($gender) ?>" data-aos="zoom-in" data-aos-delay="<?= min($catIdx++ * 75, 375) ?>">
                 <a href="/products<?= ! empty($cat['slug']) ? '?category=' . esc($cat['slug']) : '' ?>"
                    class="pg-category-card d-block text-decoration-none">
                     <?php if (! empty($cat['image_path'])): ?>
-                        <div class="pg-category-img" style="background-image:url('/uploads/categories/<?= esc($cat['image_path']) ?>');"></div>
+                        <?php $catImgUrl = ($cat['image_path'][0] === '/') ? $cat['image_path'] : '/uploads/categories/' . $cat['image_path']; ?>
+                        <div class="pg-category-img" style="background-image:url('<?= esc($catImgUrl) ?>');"></div>
                     <?php elseif (! empty($cat['image_url'])): ?>
                         <div class="pg-category-img" style="background-image:url('<?= esc($cat['image_url']) ?>');"></div>
                     <?php else: ?>
@@ -258,16 +279,22 @@ $displayCategories = $categories;
 <?php if (! empty($featured)): ?>
 <section class="pg-section pg-section-alt">
     <div class="container">
-        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2" data-aos="fade-up">
             <div>
-                <span class="pg-eyebrow">Showcase</span>
-                <h2 class="pg-section-heading mb-0">Featured Products</h2>
+                <?php if (! empty($settings['featured_eyebrow'])): ?>
+                <span class="pg-eyebrow"><?= esc($settings['featured_eyebrow']) ?></span>
+                <?php endif; ?>
+                <?php if (! empty($settings['featured_heading'])): ?>
+                <h2 class="pg-section-heading mb-0"><?= esc($settings['featured_heading']) ?></h2>
+                <?php endif; ?>
             </div>
-            <a href="/products" class="pg-view-all">View All <i class="bi bi-arrow-right"></i></a>
+            <?php if (! empty($settings['featured_cta_text'])): ?>
+            <a href="<?= esc($settings['featured_cta_url'] ?? '#') ?>" class="pg-view-all"><?= esc($settings['featured_cta_text']) ?> <i class="bi bi-arrow-right"></i></a>
+            <?php endif; ?>
         </div>
         <div class="row g-4">
-            <?php foreach ($featured as $p): ?>
-            <div class="col-6 col-md-4 col-lg-3">
+            <?php $featIdx = 0; foreach ($featured as $p): ?>
+            <div class="col-6 col-md-4 col-lg-3" data-aos="fade-up" data-aos-delay="<?= min($featIdx++ * 100, 300) ?>">
                 <?= view('partials/product_card', ['product' => $p]) ?>
             </div>
             <?php endforeach; ?>
@@ -281,7 +308,7 @@ $displayCategories = $categories;
 <section class="pg-section pg-quality-section">
     <div class="container">
         <div class="row align-items-center g-5">
-            <div class="col-lg-6">
+            <div class="col-lg-6" data-aos="fade-right" data-aos-duration="900">
                 <?php if (! empty($settings['materials_eyebrow'])): ?>
                 <span class="pg-eyebrow"><?= esc($settings['materials_eyebrow']) ?></span>
                 <?php endif; ?>
@@ -310,7 +337,7 @@ $displayCategories = $categories;
                 <?php endif; ?>
             </div>
             <?php if (! empty($materials)): ?>
-            <div class="col-lg-6">
+            <div class="col-lg-6" data-aos="fade-left" data-aos-duration="900">
                 <div class="pg-quality-list">
                     <?php foreach ($materials as $mat): ?>
                     <div class="pg-quality-item">
@@ -337,7 +364,7 @@ $displayCategories = $categories;
 <?php if (! empty($markets)): ?>
 <section class="pg-section pg-section-alt">
     <div class="container">
-        <div class="text-center mb-5">
+        <div class="text-center mb-5" data-aos="fade-up">
             <?php if (! empty($settings['markets_eyebrow'])): ?>
             <span class="pg-eyebrow"><?= esc($settings['markets_eyebrow']) ?></span>
             <?php endif; ?>
@@ -346,8 +373,8 @@ $displayCategories = $categories;
             <?php endif; ?>
         </div>
         <div class="row g-3 justify-content-center">
-            <?php foreach ($markets as $m): ?>
-            <div class="col-6 col-sm-4 col-md-3 col-lg-auto">
+            <?php $mktIdx = 0; foreach ($markets as $m): ?>
+            <div class="col-6 col-sm-4 col-md-3 col-lg-auto" data-aos="zoom-in" data-aos-delay="<?= min($mktIdx++ * 75, 375) ?>">
                 <div class="pg-industry-card">
                     <?php if (! empty($m['icon'])): ?>
                     <i class="bi <?= esc($m['icon']) ?> pg-industry-icon"></i>
@@ -365,7 +392,7 @@ $displayCategories = $categories;
 <?php if (! empty($whyus)): ?>
 <section class="pg-section">
     <div class="container">
-        <div class="text-center mb-5">
+        <div class="text-center mb-5" data-aos="fade-up">
             <?php if (! empty($settings['whyus_eyebrow'])): ?>
             <span class="pg-eyebrow"><?= esc($settings['whyus_eyebrow']) ?></span>
             <?php endif; ?>
@@ -374,8 +401,8 @@ $displayCategories = $categories;
             <?php endif; ?>
         </div>
         <div class="row g-4">
-            <?php foreach ($whyus as $w): ?>
-            <div class="col-md-6 col-lg-3">
+            <?php $wuIdx = 0; foreach ($whyus as $w): ?>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="<?= min($wuIdx++ * 100, 300) ?>">
                 <div class="pg-why-card">
                     <?php if (! empty($w['icon'])): ?>
                     <div class="pg-why-num"><?= esc($w['icon']) ?></div>
@@ -394,7 +421,7 @@ $displayCategories = $categories;
 
 <!-- ========== CTA BANNER ========== -->
 <section class="pg-cta-section" id="contact-cta">
-    <div class="container text-center">
+    <div class="container text-center" data-aos="zoom-in" data-aos-duration="800">
         <?php if (! empty($settings['cta_eyebrow'])): ?>
         <span class="pg-eyebrow-light"><?= esc($settings['cta_eyebrow']) ?></span>
         <?php endif; ?>
@@ -411,12 +438,16 @@ $displayCategories = $categories;
                 ? 'https://wa.me/' . $waNum . '?text=' . rawurlencode('Hi! I am interested in OEM manufacturing for a leather accessories collection. Can we discuss?')
                 : 'https://wa.me/?text=' . rawurlencode('Hi! I am interested in OEM manufacturing for a leather accessories collection. Can we discuss?');
             ?>
+            <?php if ($waNum || ! empty($settings['cta_whatsapp_text'])): ?>
             <a href="<?= $waLink ?>" class="btn pg-btn-whatsapp btn-lg px-4" target="_blank" rel="noopener">
-                <i class="bi bi-whatsapp me-2"></i>Chat on WhatsApp
+                <i class="bi bi-whatsapp me-2"></i><?= esc($settings['cta_whatsapp_text'] ?? 'Chat on WhatsApp') ?>
             </a>
-            <a href="/products" class="btn pg-btn-outline-light btn-lg px-4">
-                <i class="bi bi-grid me-2"></i>Browse Our Range
+            <?php endif; ?>
+            <?php if (! empty($settings['cta_browse_text'])): ?>
+            <a href="<?= esc($settings['cta_browse_url'] ?? '#') ?>" class="btn pg-btn-outline-light btn-lg px-4">
+                <i class="bi bi-grid me-2"></i><?= esc($settings['cta_browse_text']) ?>
             </a>
+            <?php endif; ?>
         </div>
         <?php if (! empty($settings['cta_note'])): ?>
         <p class="mt-4 small pg-cta-note">

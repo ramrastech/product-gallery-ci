@@ -34,7 +34,7 @@
                 <?php if (! empty($faqGroups)): ?>
 
                 <!-- FAQ Category Tabs -->
-                <ul class="nav pg-faq-tabs mb-5" id="faqTabs">
+                <ul class="nav pg-faq-tabs mb-5" id="faqTabs" data-aos="fade-up">
                     <?php foreach ($faqGroups as $i => $group): ?>
                     <li class="nav-item">
                         <button class="pg-faq-tab <?= $i === 0 ? 'active' : '' ?>"
@@ -51,7 +51,7 @@
                         $catId = (int) $group['category']['id'];
                     ?>
                     <div class="tab-pane fade <?= $i === 0 ? 'show active' : '' ?>" id="faq-tab-<?= $catId ?>">
-                        <div class="accordion pg-faq-accordion" id="faqAcc<?= $catId ?>">
+                        <div class="accordion pg-faq-accordion" id="faqAcc<?= $catId ?>" data-aos="fade-up" data-aos-delay="100">
                             <?php foreach ($group['items'] as $j => $faq): ?>
                             <div class="accordion-item pg-faq-item">
                                 <h2 class="accordion-header">
@@ -85,7 +85,7 @@
                 <?php endif; ?>
 
                 <!-- Still have questions -->
-                <div class="pg-faq-cta mt-5">
+                <div class="pg-faq-cta mt-5" data-aos="zoom-in">
                     <i class="bi bi-chat-dots-fill pg-faq-cta-icon"></i>
                     <h5>Still have a question?</h5>
                     <p>Our team responds to all enquiries within 4 hours during business hours.</p>

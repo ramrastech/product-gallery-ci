@@ -16,7 +16,7 @@
     <div class="container">
 
         <!-- Page Header -->
-        <div class="pg-page-header mb-4">
+        <div class="pg-page-header mb-4" data-aos="fade-up">
             <?php if (isset($searchQuery) && $searchQuery): ?>
                 <h1 class="pg-page-title">Search results for "<?= esc($searchQuery) ?>"</h1>
                 <p class="text-muted"><?= count($products) ?> result(s) found</p>
@@ -32,7 +32,7 @@
 
         <div class="row g-4">
             <!-- Sidebar -->
-            <div class="col-lg-3 col-md-4">
+            <div class="col-lg-3 col-md-4" data-aos="fade-right">
                 <div class="pg-sidebar">
                     <h6 class="pg-sidebar-title">Categories</h6>
                     <ul class="pg-sidebar-list">
@@ -63,8 +63,8 @@
                 </div>
                 <?php else: ?>
                 <div class="row g-4">
-                    <?php foreach ($products as $p): ?>
-                    <div class="col-6 col-xl-4">
+                    <?php $pIdx = 0; foreach ($products as $p): ?>
+                    <div class="col-6 col-xl-4" data-aos="fade-up" data-aos-delay="<?= min($pIdx++ * 75, 300) ?>">
                         <?= view('partials/product_card', ['product' => $p]) ?>
                     </div>
                     <?php endforeach; ?>

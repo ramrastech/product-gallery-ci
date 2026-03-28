@@ -165,19 +165,22 @@ class HomeContent extends BaseController
             'hero_video_url', 'hero_poster_url', 'hero_frame_image_url', 'hero_trust_badges',
             'story_eyebrow', 'story_heading', 'story_body_1', 'story_body_2',
             'story_main_image_url', 'story_accent_image_url', 'story_badge_num', 'story_badge_label', 'story_checks',
+            'story_cta_text', 'story_cta_url',
+            'featured_eyebrow', 'featured_heading', 'featured_cta_text', 'featured_cta_url',
             'capabilities_eyebrow', 'capabilities_heading', 'capabilities_subtext',
-            'categories_eyebrow', 'categories_heading',
+            'categories_eyebrow', 'categories_heading', 'categories_cta_text', 'categories_cta_url',
             'markets_eyebrow', 'markets_heading',
             'materials_eyebrow', 'materials_heading', 'materials_body',
             'whyus_eyebrow', 'whyus_heading',
             'cta_eyebrow', 'cta_title', 'cta_subtitle', 'cta_note',
+            'cta_whatsapp_text', 'cta_browse_text', 'cta_browse_url',
         ];
 
         foreach ($fields as $key) {
             $this->settingsModel->setSetting($key, $this->request->getPost($key) ?? '');
         }
 
-        return redirect()->back()->with('success', 'Home page settings saved.');
+        return redirect()->to('/admin/home-content/settings')->with('success', 'Home page settings saved.');
     }
 
     public function settings()

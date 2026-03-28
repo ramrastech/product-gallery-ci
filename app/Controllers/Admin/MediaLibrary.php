@@ -10,17 +10,21 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\ImageOptimizer;
 use App\Models\MediaLibraryModel;
 
 class MediaLibrary extends BaseController
 {
     private MediaLibraryModel $model;
+    private ImageOptimizer    $optimizer;
 
-    private array $allowedFolders = ['general', 'hero', 'about', 'team', 'og', 'pages'];
+    private array $allowedFolders = ['general', 'products', 'categories', 'hero', 'about', 'team', 'og', 'pages'];
+    private array $allowedExts    = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
 
     public function __construct()
     {
-        $this->model = new MediaLibraryModel();
+        $this->model     = new MediaLibraryModel();
+        $this->optimizer = new ImageOptimizer();
     }
 
     public function index()
@@ -30,11 +34,19 @@ class MediaLibrary extends BaseController
             ? $this->model->getAllFiles()
             : $this->model->getFolderFiles($folder);
 
+        $brokenCount = $this->model
+            ->groupStart()
+                ->where('variants IS NULL')
+                ->orWhere('variants', '')
+            ->groupEnd()
+            ->countAllResults();
+
         return view('admin/media/index', [
-            'pageTitle'      => 'Media Library',
-            'files'          => $files,
-            'currentFolder'  => $folder,
-            'folders'        => $this->allowedFolders,
+            'pageTitle'     => 'Media Library',
+            'files'         => $files,
+            'currentFolder' => $folder,
+            'folders'       => $this->allowedFolders,
+            'brokenCount'   => $brokenCount,
         ]);
     }
 
@@ -47,70 +59,62 @@ class MediaLibrary extends BaseController
             $folder = 'general';
         }
 
-        if (! $file || ! $file->isValid()) {
-            return redirect()->back()->with('error', 'No valid file provided.');
+        $err = $this->validateFile($file);
+        if ($err) {
+            return redirect()->to('/admin/media')->with('error', $err);
         }
 
-        $allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-        if (! in_array($file->getMimeType(), $allowed)) {
-            return redirect()->back()->with('error', 'Only JPEG, PNG, WebP, and GIF images are allowed.');
-        }
-
-        if ($file->getSize() > 5 * 1024 * 1024) {
-            return redirect()->back()->with('error', 'File size must not exceed 5 MB.');
-        }
-
-        $uploadPath = FCPATH . 'uploads/media/' . $folder;
-        if (! is_dir($uploadPath)) {
-            mkdir($uploadPath, 0755, true);
-        }
-
-        $newName = $file->getRandomName();
-        $file->move($uploadPath, $newName);
-
-        // Get image dimensions
-        $width = $height = null;
-        $imgInfo = @getimagesize($uploadPath . '/' . $newName);
-        if ($imgInfo) {
-            [$width, $height] = $imgInfo;
+        $result = $this->processUpload($file, $folder);
+        if (isset($result['error'])) {
+            return redirect()->to('/admin/media')->with('error', $result['error']);
         }
 
         $this->model->insert([
-            'filename'      => $newName,
+            'filename'      => $result['filename'],
             'original_name' => $file->getClientName(),
             'folder'        => $folder,
-            'mime_type'     => $file->getMimeType(),
-            'file_size'     => $file->getSize(),
-            'width'         => $width,
-            'height'        => $height,
+            'mime_type'     => 'image/webp',
+            'file_size'     => $result['variants']['lg']['size'] ?? 0,
+            'width'         => $result['orig_w'],
+            'height'        => $result['orig_h'],
+            'variants'      => json_encode($result['variants']),
             'alt_text'      => $this->request->getPost('alt_text') ?? '',
             'title'         => $this->request->getPost('title') ?? '',
             'uploaded_by'   => session()->get('admin_id'),
             'created_at'    => date('Y-m-d H:i:s'),
         ]);
 
-        return redirect()->back()->with('success', 'File uploaded successfully.');
+        return redirect()->to('/admin/media')->with('success', 'Image optimised and uploaded as WebP.');
     }
 
     public function delete(int $id)
     {
         $media = $this->model->find($id);
         if (! $media) {
-            return redirect()->back()->with('error', 'File not found.');
+            return redirect()->to('/admin/media')->with('error', 'File not found.');
         }
 
-        $filePath = FCPATH . 'uploads/media/' . $media['folder'] . '/' . $media['filename'];
-        if (is_file($filePath)) {
-            unlink($filePath);
+        $dir = FCPATH . 'uploads/media/' . $media['folder'] . '/';
+
+        // Delete all size variants
+        $variants = json_decode($media['variants'] ?? '{}', true) ?: [];
+        foreach ($variants as $v) {
+            if (! empty($v['file']) && is_file($dir . $v['file'])) {
+                @unlink($dir . $v['file']);
+            }
+        }
+
+        // Fallback: delete primary filename directly
+        if (is_file($dir . $media['filename'])) {
+            @unlink($dir . $media['filename']);
         }
 
         $this->model->delete($id);
-        return redirect()->back()->with('success', 'File deleted.');
+        return redirect()->to('/admin/media')->with('success', 'File deleted.');
     }
 
     /**
-     * AJAX/modal endpoint for picking an image.
-     * Returns HTML fragment for use inside a Bootstrap modal.
+     * Returns HTML fragment loaded into a Bootstrap modal.
      */
     public function picker()
     {
@@ -124,5 +128,153 @@ class MediaLibrary extends BaseController
             'currentFolder' => $folder,
             'folders'       => $this->allowedFolders,
         ]);
+    }
+
+    /**
+     * AJAX upload — returns JSON {success, url, variants, id, error}.
+     */
+    public function uploadAjax()
+    {
+        $file   = $this->request->getFile('media_file');
+        $folder = $this->request->getPost('folder') ?? 'general';
+
+        if (! in_array($folder, $this->allowedFolders)) {
+            $folder = 'general';
+        }
+
+        $err = $this->validateFile($file);
+        if ($err) {
+            return $this->response->setJSON(['success' => false, 'error' => $err]);
+        }
+
+        $result = $this->processUpload($file, $folder);
+        if (isset($result['error'])) {
+            return $this->response->setJSON(['success' => false, 'error' => $result['error']]);
+        }
+
+        $id = $this->model->insert([
+            'filename'      => $result['filename'],
+            'original_name' => $file->getClientName(),
+            'folder'        => $folder,
+            'mime_type'     => 'image/webp',
+            'file_size'     => $result['variants']['lg']['size'] ?? 0,
+            'width'         => $result['orig_w'],
+            'height'        => $result['orig_h'],
+            'variants'      => json_encode($result['variants']),
+            'alt_text'      => '',
+            'title'         => '',
+            'uploaded_by'   => session()->get('admin_id'),
+            'created_at'    => date('Y-m-d H:i:s'),
+        ]);
+
+        $url = '/uploads/media/' . $folder . '/' . $result['filename'];
+
+        return $this->response->setJSON([
+            'success'  => true,
+            'id'       => $id,
+            'url'      => $url,
+            'name'     => $file->getClientName(),
+            'variants' => $result['variants'],
+        ]);
+    }
+
+    /**
+     * Rebuild variants JSON for any record where it is NULL or empty.
+     * Reads existing WebP files from disk using the known naming convention.
+     */
+    public function repairVariants()
+    {
+        $broken = $this->model
+            ->groupStart()
+                ->where('variants IS NULL')
+                ->orWhere('variants', '')
+            ->groupEnd()
+            ->findAll();
+
+        $fixed  = 0;
+        $keys   = ['lg' => '', 'md' => '_md', 'sm' => '_sm', 'th' => '_th'];
+
+        foreach ($broken as $row) {
+            $base = preg_replace('/\.webp$/i', '', $row['filename']);
+            $dir  = FCPATH . 'uploads/media/' . $row['folder'] . '/';
+            $variants = [];
+
+            foreach ($keys as $key => $suffix) {
+                $file = $base . $suffix . '.webp';
+                $path = $dir . $file;
+                if (! is_file($path)) {
+                    continue;
+                }
+                $info = @getimagesize($path);
+                $variants[$key] = [
+                    'file' => $file,
+                    'w'    => $info[0] ?? 0,
+                    'h'    => $info[1] ?? 0,
+                    'size' => filesize($path),
+                ];
+            }
+
+            if (empty($variants)) {
+                continue;
+            }
+
+            // Update dimensions on the record from the lg variant if missing
+            $update = ['variants' => json_encode($variants)];
+            if (empty($row['width']) && isset($variants['lg'])) {
+                $update['width']  = $variants['lg']['w'];
+                $update['height'] = $variants['lg']['h'];
+            }
+
+            $this->model->update($row['id'], $update);
+            $fixed++;
+        }
+
+        return redirect()->to('/admin/media')->with(
+            $fixed > 0 ? 'success' : 'error',
+            $fixed > 0
+                ? "{$fixed} file(s) repaired — variant data rebuilt from disk."
+                : 'No repairable files found. Variant files may be missing from disk.'
+        );
+    }
+
+    // ── Private helpers ──────────────────────────────────────────────────────
+
+    private function validateFile(mixed $file): ?string
+    {
+        if (! $file || ! $file->isValid()) {
+            return 'No valid file provided.';
+        }
+        $ext = strtolower($file->getClientExtension());
+        if (! in_array($ext, $this->allowedExts)) {
+            return '.' . strtoupper($ext) . ' is not supported. Allowed formats: JPG, PNG, WebP, GIF. HEIC/HEIF photos from iPhone must be converted to JPG first.';
+        }
+        if ($file->getSize() > 8 * 1024 * 1024) {
+            $mb = number_format($file->getSize() / 1048576, 1);
+            return "File is {$mb} MB — maximum allowed size is 8 MB.";
+        }
+        return null;
+    }
+
+    /**
+     * Move uploaded file to a temp location then run the optimizer.
+     */
+    private function processUpload(mixed $file, string $folder): array
+    {
+        $uploadDir = FCPATH . 'uploads/media/' . $folder;
+        if (! is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        // Move to dir under a temp name first
+        $tmpName = bin2hex(random_bytes(12)) . '_orig.' . $file->getClientExtension();
+        $file->move($uploadDir, $tmpName);
+
+        $baseName = bin2hex(random_bytes(8)); // final WebP base name
+
+        return $this->optimizer->process(
+            $uploadDir . '/' . $tmpName,
+            $uploadDir,
+            $baseName
+        );
     }
 }

@@ -61,6 +61,7 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     $routes->post('products/images/reorder',  'Admin\Products::reorderImages');
     $routes->post('products/images/delete/(:num)', 'Admin\Products::deleteImage/$1');
     $routes->post('products/images/primary/(:num)', 'Admin\Products::setPrimaryImage/$1');
+    $routes->post('products/images/add-url/(:num)', 'Admin\Products::addImageFromUrl/$1');
 
     // Categories
     $routes->get('categories',                 'Admin\Categories::index');
@@ -68,7 +69,8 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     $routes->post('categories/save',           'Admin\Categories::save');
     $routes->get('categories/edit/(:num)',     'Admin\Categories::edit/$1');
     $routes->post('categories/update/(:num)', 'Admin\Categories::update/$1');
-    $routes->post('categories/delete/(:num)', 'Admin\Categories::delete/$1');
+    $routes->post('categories/delete/(:num)',       'Admin\Categories::delete/$1');
+    $routes->post('categories/remove-image/(:num)', 'Admin\Categories::removeImage/$1');
 
     // Enquiries
     $routes->get('enquiries',                  'Admin\Enquiries::index');
@@ -93,6 +95,8 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     $routes->post('media/upload',                   'Admin\MediaLibrary::upload');
     $routes->post('media/delete/(:num)',            'Admin\MediaLibrary::delete/$1');
     $routes->get('media/picker',                    'Admin\MediaLibrary::picker');
+    $routes->post('media/upload-ajax',              'Admin\MediaLibrary::uploadAjax');
+    $routes->post('media/repair-variants',          'Admin\MediaLibrary::repairVariants');
 
     // Home Page Content
     $routes->get('home-content',                    'Admin\HomeContent::index');
@@ -132,4 +136,26 @@ $routes->group('admin', ['filter' => 'adminAuth'], function ($routes) {
     // Legal Page Content (Privacy / Terms)
     $routes->get('page-content/(:segment)',         'Admin\PageContent::edit/$1');
     $routes->post('page-content/(:segment)/save',   'Admin\PageContent::save/$1');
+
+    // Help & Support
+    $routes->get('help',                            'Admin\Help::index');
+
+    // Audit Log (super_admin only)
+    $routes->get('audit-log',                       'Admin\AuditLog::index',  ['filter' => 'role:super_admin']);
+    $routes->post('audit-log/clear',                'Admin\AuditLog::clear',  ['filter' => 'role:super_admin']);
+
+    // My Profile (all admins)
+    $routes->get('profile',                         'Admin\Profile::index');
+    $routes->post('profile/save-info',              'Admin\Profile::saveInfo');
+    $routes->post('profile/change-password',        'Admin\Profile::changePassword');
+    $routes->post('profile/toggle-2fa',             'Admin\Profile::toggle2fa');
+
+    // User Management (super_admin only)
+    $routes->get('users',                           'Admin\Users::index',   ['filter' => 'role:super_admin']);
+    $routes->get('users/new',                       'Admin\Users::create',  ['filter' => 'role:super_admin']);
+    $routes->post('users/save',                     'Admin\Users::save',    ['filter' => 'role:super_admin']);
+    $routes->get('users/edit/(:num)',               'Admin\Users::edit/$1', ['filter' => 'role:super_admin']);
+    $routes->post('users/update/(:num)',            'Admin\Users::update/$1', ['filter' => 'role:super_admin']);
+    $routes->post('users/delete/(:num)',            'Admin\Users::delete/$1', ['filter' => 'role:super_admin']);
+    $routes->post('users/restore/(:num)',           'Admin\Users::restore/$1', ['filter' => 'role:super_admin']);
 });

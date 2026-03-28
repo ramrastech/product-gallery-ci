@@ -30,7 +30,8 @@ class Settings extends BaseController
     {
         $settingsModel = new SettingsModel();
         $fields = [
-            'site_name', 'site_tagline', 'enquiry_email', 'whatsapp_number',
+            'site_name', 'site_tagline', 'logo_url', 'favicon_url',
+            'enquiry_email', 'whatsapp_number',
             'ga_tracking_id', 'meta_pixel_id', 'facebook_url', 'instagram_url',
             'linkedin_url', 'twitter_url', 'hero_title', 'hero_subtitle',
             'contact_phone', 'contact_address',
@@ -40,6 +41,6 @@ class Settings extends BaseController
             $settingsModel->setSetting($key, $this->request->getPost($key) ?? '');
         }
 
-        return redirect()->back()->with('success', 'Settings saved successfully.');
+        return redirect()->to('/admin/settings')->with('success', 'Settings saved successfully.');
     }
 }

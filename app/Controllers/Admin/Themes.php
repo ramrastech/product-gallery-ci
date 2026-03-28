@@ -60,9 +60,9 @@ class Themes extends BaseController
 
         if (in_array($theme, $valid)) {
             (new SettingsModel())->setSetting('active_theme', $theme);
-            return redirect()->back()->with('success', 'Theme "' . ucfirst($theme) . '" activated.');
+            return redirect()->to('/admin/themes')->with('success', 'Theme "' . ucfirst($theme) . '" activated.');
         }
 
-        return redirect()->back()->with('error', 'Invalid theme.');
+        return redirect()->to('/admin/themes')->with('error', 'Invalid theme.');
     }
 }

@@ -18,7 +18,7 @@ class MediaLibraryModel extends Model
     protected $useTimestamps  = false;
     protected $allowedFields  = [
         'filename', 'original_name', 'folder', 'mime_type',
-        'file_size', 'width', 'height', 'alt_text', 'title', 'uploaded_by', 'created_at',
+        'file_size', 'width', 'height', 'variants', 'alt_text', 'title', 'uploaded_by', 'created_at',
     ];
 
     /**

@@ -24,7 +24,10 @@ class Auth extends BaseController
         if (session()->get('admin_logged_in')) {
             return redirect()->to('/admin');
         }
-        return view('admin/auth/login', ['title' => 'Admin Login']);
+        return view('admin/auth/login', [
+            'title'              => 'Admin Login',
+            'rememberedUsername' => get_cookie('admin_remember_me') ?? '',
+        ]);
     }
 
     public function loginPost()
@@ -36,12 +39,21 @@ class Auth extends BaseController
             return redirect()->back()->with('error', 'Please enter username and password.');
         }
 
+        $rememberMe = (bool) $this->request->getPost('remember_me');
+
         $adminModel = new AdminModel();
         $admin = $adminModel->where('username', $username)->orWhere('email', $username)->first();
 
         if (! $admin || ! password_verify($password, $admin['password'])) {
             AuditLogModel::record('login_failed', 'admin', null, "Failed login attempt for: {$username}");
             return redirect()->back()->with('error', 'Invalid credentials.')->withInput();
+        }
+
+        // Handle remember-me cookie (stores username for auto-fill, 30 days)
+        if ($rememberMe) {
+            set_cookie('admin_remember_me', $username, 60 * 60 * 24 * 30);
+        } else {
+            delete_cookie('admin_remember_me');
         }
 
         // If 2FA is enabled, send OTP and redirect to verify step
