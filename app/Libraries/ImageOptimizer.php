@@ -48,7 +48,7 @@ class ImageOptimizer
      *   variants: array<string, array{file:string, w:int, h:int, size:int}>
      * }|array{error: string}
      */
-    public function process(string $sourcePath, string $destDir, string $baseName): array
+    public function process(string $sourcePath, string $destDir, string $baseName, bool $alsoJpeg = false): array
     {
         // Bump memory for large images
         $prevMem = ini_set('memory_limit', '256M');
@@ -81,6 +81,27 @@ class ImageOptimizer
 
             $destPath = rtrim($destDir, '/') . '/' . $filename;
             imagewebp($canvas, $destPath, $opts['q']);
+
+            // For OG folder: also save a JPEG copy of the lg variant (WhatsApp/social crawlers need JPEG/PNG)
+            if ($alsoJpeg && $key === 'lg') {
+                $jpegFile = $baseName . '.jpg';
+                $jpegPath = rtrim($destDir, '/') . '/' . $jpegFile;
+                // Fill transparent background with white before saving JPEG
+                $jpegCanvas = imagecreatetruecolor($targetW, $targetH);
+                $white = imagecolorallocate($jpegCanvas, 255, 255, 255);
+                imagefill($jpegCanvas, 0, 0, $white);
+                imagecopy($jpegCanvas, $canvas, 0, 0, 0, 0, $targetW, $targetH);
+                imagejpeg($jpegCanvas, $jpegPath, 85);
+                imagedestroy($jpegCanvas);
+
+                $variants['og_jpeg'] = [
+                    'file' => $jpegFile,
+                    'w'    => $targetW,
+                    'h'    => $targetH,
+                    'size' => file_exists($jpegPath) ? filesize($jpegPath) : 0,
+                ];
+            }
+
             imagedestroy($canvas);
 
             $fileSize = file_exists($destPath) ? filesize($destPath) : 0;

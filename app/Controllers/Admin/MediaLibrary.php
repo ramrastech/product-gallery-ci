@@ -167,7 +167,9 @@ class MediaLibrary extends BaseController
             'created_at'    => date('Y-m-d H:i:s'),
         ]);
 
-        $url = '/uploads/media/' . $folder . '/' . $result['filename'];
+        // For OG folder, return the JPEG URL so social crawlers (WhatsApp etc.) can read it
+        $ogJpeg = $result['variants']['og_jpeg']['file'] ?? null;
+        $url = '/uploads/media/' . $folder . '/' . ($ogJpeg ?? $result['filename']);
 
         return $this->response->setJSON([
             'success'  => true,
@@ -271,10 +273,12 @@ class MediaLibrary extends BaseController
 
         $baseName = bin2hex(random_bytes(8)); // final WebP base name
 
+        // OG folder needs a JPEG copy — WhatsApp/social crawlers do not support WebP
         return $this->optimizer->process(
             $uploadDir . '/' . $tmpName,
             $uploadDir,
-            $baseName
+            $baseName,
+            $folder === 'og'
         );
     }
 }
