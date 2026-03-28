@@ -92,7 +92,8 @@
     <!-- ── AOS Scroll Animations ─────────────────────────── -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
 
-    <!-- ── Active Theme ──────────────────────────────────── -->
+    <!-- ── Base (structure) + Active Theme (variables) ─────── -->
+    <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/themes/<?= esc($activeTheme) ?>/style.css">
 
     <?= $this->renderSection('styles') ?>
