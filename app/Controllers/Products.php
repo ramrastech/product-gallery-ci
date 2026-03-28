@@ -129,9 +129,19 @@ class Products extends BaseController
             ? $this->categoryModel->find($product['category_id'])
             : null;
 
-        $ogImageUrl = $primaryImage
-            ? (str_starts_with($primaryImage, 'http') ? $primaryImage : base_url('uploads/products/' . $primaryImage))
-            : base_url('assets/img/og-default.jpg');
+        if (! $primaryImage) {
+            $ogImageUrl = base_url('assets/img/og-default.jpg');
+        } elseif (str_starts_with($primaryImage, 'http')) {
+            $ogImageUrl = $primaryImage;
+        } else {
+            // image_path may be a full path like /uploads/products/... or a bare filename
+            $cleanPath  = ltrim($primaryImage, '/');
+            // Swap .webp → .jpg for social crawlers (WhatsApp does not support WebP)
+            $jpegPath   = preg_replace('/\.webp$/i', '.jpg', $cleanPath);
+            $ogImageUrl = is_file(FCPATH . $jpegPath)
+                ? base_url($jpegPath)
+                : base_url($cleanPath);
+        }
 
         $waMessage = "Hi! I'm interested in " . $product['name'] . " — " . current_url();
 

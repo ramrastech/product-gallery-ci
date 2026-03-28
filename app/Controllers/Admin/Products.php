@@ -304,7 +304,7 @@ class Products extends BaseController
             $file->move($uploadDir, $tmpName);
 
             $baseName = bin2hex(random_bytes(8));
-            $result   = $this->optimizer->process($uploadDir . '/' . $tmpName, $uploadDir, $baseName);
+            $result   = $this->optimizer->process($uploadDir . '/' . $tmpName, $uploadDir, $baseName, true);
             if (isset($result['error'])) {
                 continue;
             }
