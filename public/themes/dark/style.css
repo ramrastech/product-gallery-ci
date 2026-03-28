@@ -95,7 +95,7 @@ body { background: var(--pg-bg); color: var(--pg-text); font-family: 'Inter', sy
 .pg-product-category a { color: var(--pg-primary); font-size: 0.75rem; font-weight: 700; text-decoration: none; text-transform: uppercase; letter-spacing: 2px; }
 
 .pg-gallery-main { border-radius: var(--pg-radius); overflow: hidden; background: #111118; }
-.pg-gallery-main-img { width: 100%; height: 420px; object-fit: cover; display: block; }
+.pg-gallery-main-img { width: 100%; height: 420px; object-fit: cover; display: block; cursor: pointer; }
 .pg-gallery-prev, .pg-gallery-next { color: var(--pg-primary); }
 .pg-gallery-thumbs .swiper-slide { width: 80px; cursor: pointer; border-radius: 2px; overflow: hidden; opacity: 0.5; border: 1px solid transparent; }
 .pg-gallery-thumbs .swiper-slide-thumb-active { opacity: 1; border-color: var(--pg-primary); }
@@ -139,3 +139,13 @@ body { background: var(--pg-bg); color: var(--pg-text); font-family: 'Inter', sy
 
 .pg-pagination .page-link { background: var(--pg-card-bg); border-color: var(--pg-border); color: var(--pg-text); border-radius: 2px; }
 .pg-pagination .page-item.active .page-link { background: var(--pg-primary); border-color: var(--pg-primary); color: #000; }
+
+/* GLightbox overrides */
+.glightbox-container { z-index: 9999 !important; }
+.glightbox-container .goverlay { z-index: 9998 !important; }
+.glightbox-container .gslider { max-width: 100vw !important; max-height: 100vh !important; }
+.glightbox-container .gslide-inner-content { max-width: 95vw !important; max-height: 95vh !important; overflow: hidden !important; }
+.glightbox-container .ginner-container { max-width: 95vw !important; max-height: 95vh !important; width: auto !important; height: auto !important; }
+.glightbox-container .gslide-image { display: flex !important; align-items: center !important; justify-content: center !important; overflow: hidden !important; max-width: 95vw !important; max-height: 95vh !important; }
+.glightbox-container .gslide-image img { max-height: 90vh !important; max-width: 90vw !important; width: auto !important; height: auto !important; object-fit: contain !important; display: block !important; }
+.glightbox-container .gclose { display: flex !important; visibility: visible !important; opacity: 1 !important; z-index: 10001 !important; position: fixed !important; top: 12px !important; right: 12px !important; width: 44px !important; height: 44px !important; align-items: center !important; justify-content: center !important; background: rgba(0,0,0,0.65) !important; border-radius: 50% !important; pointer-events: all !important; }
