@@ -7,6 +7,17 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [1.0.1] — 2026-03-28
+
+### Fixed
+- OG image fallback used `??` which ignored empty string — changed to `!empty()` so default image fires correctly
+- WhatsApp and social crawlers do not support WebP — media library, product uploads, and OG folder now auto-generate a JPEG copy alongside WebP; OG meta always uses the JPEG URL
+- Product OG image URL had a double-path bug — `image_path` already contains `/uploads/products/` but controller prepended it again, producing a broken URL
+- Media picker was returning WebP URL for `og` folder images even when a JPEG copy existed
+- Added `docs/og-image-social-sharing.md` — issue log and project checklist for social sharing
+
+---
+
 ## [1.0.0] — 2026-03-27
 
 ### Added
