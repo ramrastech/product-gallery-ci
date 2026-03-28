@@ -35,7 +35,10 @@
         $variants  = json_decode($file['variants'] ?? '{}', true) ?: [];
         $thumbFile = $variants['th']['file'] ?? $variants['sm']['file'] ?? $file['filename'];
         $thumbUrl  = '/uploads/media/' . $file['folder'] . '/' . $thumbFile;
-        $primaryUrl = '/uploads/media/' . $file['folder'] . '/' . $file['filename'];
+        // For OG folder, use the JPEG copy if available (WhatsApp/social crawlers need JPEG)
+        $ogJpeg     = $variants['og_jpeg']['file'] ?? null;
+        $primaryUrl = '/uploads/media/' . $file['folder'] . '/' . ($ogJpeg ?? $file['filename']);
+        $imgFormat  = $ogJpeg ? 'JPEG' : 'WebP';
     ?>
     <div class="col-4 col-sm-3 col-md-2">
         <div class="picker-item" data-url="<?= esc($primaryUrl) ?>" data-alt="<?= esc($file['alt_text'] ?? '') ?>"
@@ -47,7 +50,7 @@
                 <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-muted);">
                     <?= esc($file['original_name'] ?? $file['filename']) ?>
                 </div>
-                <span style="display:inline-block;background:rgba(99,102,241,.15);color:var(--accent);font-size:.55rem;padding:.1rem .3rem;border-radius:3px;font-weight:600;line-height:1.4;">WebP</span>
+                <span style="display:inline-block;background:rgba(99,102,241,.15);color:var(--accent);font-size:.55rem;padding:.1rem .3rem;border-radius:3px;font-weight:600;line-height:1.4;"><?= $imgFormat ?></span>
             </div>
         </div>
     </div>
