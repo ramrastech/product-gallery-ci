@@ -111,33 +111,46 @@
             <?= esc($settings['site_name'] ?? 'Product Gallery') ?>
             <?php endif; ?>
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#mainNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link <?= uri_string() === '' ? 'active' : '' ?>" href="/">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= str_starts_with(uri_string(), 'products') ? 'active' : '' ?>" href="/products">Products</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= uri_string() === 'about' ? 'active' : '' ?>" href="/about">About</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= uri_string() === 'faq' ? 'active' : '' ?>" href="/faq">FAQ</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= uri_string() === 'contact' ? 'active' : '' ?>" href="/contact">Contact</a>
-                </li>
-            </ul>
-            <form class="d-flex" action="/search" method="get">
-                <div class="input-group input-group-sm">
-                    <input class="form-control pg-search" type="search" name="q" placeholder="Search products..." value="<?= esc(service('request')->getGet('q') ?? '') ?>">
-                    <button class="btn pg-search-btn" type="submit"><i class="bi bi-search"></i></button>
-                </div>
-            </form>
+        <div class="offcanvas-lg offcanvas-end pg-offcanvas" tabindex="-1" id="mainNav">
+            <div class="offcanvas-header">
+                <a class="navbar-brand" href="/">
+                    <?php if (! empty($settings['logo_url'])): ?>
+                    <img src="<?= esc($settings['logo_url']) ?>" alt="<?= esc($settings['site_name'] ?? 'Product Gallery') ?>"
+                         style="max-height:36px; width:auto; object-fit:contain;">
+                    <?php else: ?>
+                    <?= esc($settings['site_name'] ?? 'Product Gallery') ?>
+                    <?php endif; ?>
+                </a>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#mainNav" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link <?= uri_string() === '' ? 'active' : '' ?>" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= str_starts_with(uri_string(), 'products') ? 'active' : '' ?>" href="/products">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= uri_string() === 'about' ? 'active' : '' ?>" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= uri_string() === 'faq' ? 'active' : '' ?>" href="/faq">FAQ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= uri_string() === 'contact' ? 'active' : '' ?>" href="/contact">Contact</a>
+                    </li>
+                </ul>
+                <form class="d-flex" action="/search" method="get">
+                    <div class="input-group input-group-sm">
+                        <input class="form-control pg-search" type="search" name="q" placeholder="Search products..." value="<?= esc(service('request')->getGet('q') ?? '') ?>">
+                        <button class="btn pg-search-btn" type="submit"><i class="bi bi-search"></i></button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </nav>

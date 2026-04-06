@@ -30,9 +30,22 @@
             <?php endif; ?>
         </div>
 
+        <!-- Mobile Categories: horizontal scrollable pills -->
+        <div class="pg-categories-mobile d-md-none mb-3" data-aos="fade-up">
+            <div class="pg-category-pills">
+                <a href="/products" class="pg-category-pill <?= ! $activeCategory ? 'active' : '' ?>">All</a>
+                <?php foreach ($categories as $cat): ?>
+                <a href="/products?category=<?= esc($cat['slug']) ?>"
+                   class="pg-category-pill <?= ($activeCategory && $activeCategory['id'] == $cat['id']) ? 'active' : '' ?>">
+                    <?= esc($cat['name']) ?>
+                </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
         <div class="row g-4">
-            <!-- Sidebar -->
-            <div class="col-lg-3 col-md-4" data-aos="fade-right">
+            <!-- Sidebar (hidden on mobile) -->
+            <div class="col-lg-3 col-md-4 d-none d-md-block" data-aos="fade-right">
                 <div class="pg-sidebar">
                     <h6 class="pg-sidebar-title">Categories</h6>
                     <ul class="pg-sidebar-list">
@@ -54,7 +67,7 @@
             </div>
 
             <!-- Product Grid -->
-            <div class="col-lg-9 col-md-8">
+            <div class="col-12 col-md-8 col-lg-9">
                 <?php if (empty($products)): ?>
                 <div class="text-center py-5">
                     <i class="bi bi-search" style="font-size:3rem; opacity:0.3;"></i>
